@@ -2,6 +2,8 @@
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
+variables:
+- group: Repo_Env
 
 trigger: none
 
@@ -9,22 +11,53 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
+- script: echo $(Repo_ID)
+## Updating the python version available on the linux agent
+#- task: UsePythonVersion@0
+#  inputs:
+#    versionSpec: '3.x'
+#    architecture: 'x64'
+#
+## Updating pip to latest
+#- script: python -m pip install --upgrade pip
+#  displayName: 'Upgrade pip'
+#
+## Updating to latest Azure CLI version.
+#- script: pip install --pre azure-cli --extra-index-url https://azurecliprod.blob.core.windows.net/edge
+#  displayName: 'upgrade azure cli'
+#
+#- script: az --version
+#  displayName: 'Show Azure CLI version'
+#
+#- script: az extension add -n azure-devops
+#  displayName: 'Install Azure DevOps Extension'
+#
+#- script: echo ${AZURE_DEVOPS_CLI_PAT} | az devops login
+#  env:
+#    AZURE_DEVOPS_CLI_PAT: $(System.AccessToken)
+#  displayName: 'Login Azure DevOps Extension'
+#
+#- script: az devops configure --defaults organization=https://dev.azure.com/{OrganizationName} project="GXEnablement" --use-git-aliases true
+#  displayName: 'Set default Azure DevOps organization and project'
+#
+#- script: |
+#    az pipelines build list
+#    az pipelines run --branch master --name "30.2 Docker compose with Postman" -p GXEnablement
+##    git pr list
+#  displayName: 'Show build list and run'
+#    if [ ${Repo_Name} -eq TfsGit ]
 
-- task: CmdLine@2
-  inputs:
-    script: az --version
-#      az devops login
 
-
-- script: echo ${AZURE_DEVOPS_CLI_PAT} | az devops login --org https://dev.azure.com/AlphaGX/
+- script: |
+    echo ${AZURE_DEVOPS_CLI_PAT} | az devops login
+    az devops configure --defaults organization=https://dev.azure.com/{OrganizationName} project="GXEnablement" --use-git-aliases true
+    if [[ $(Repo_ID) == 1 ]]
+    then
+      az pipelines run --branch master --name "30.1 Docker compose with Postman" -p GXEnablement
+    elif [[ $(Repo_ID) == 2 ]]
+    then
+      az pipelines run --branch master --name "30.2 Docker compose with Postman" -p GXEnablement
+    fi
   env:
     AZURE_DEVOPS_CLI_PAT: $(System.AccessToken)
-
-- script: echo $(System.AccessToken)
-
-- task: AzureCLI@2
-  inputs:
-    azureSubscription: 'Free Trial(e8850995-7132-4e71-b8b6-83830937405c)'
-    scriptType: 'bash'
-    scriptLocation: 'inlineScript'
-    inlineScript: 'az pipelines run --branch master --name "30.2 Docker compose with Postman"'
+  displayName: 'Triggering next pipeline'
