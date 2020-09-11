@@ -60,7 +60,7 @@ steps:
       az pipelines variable-group variable update --id 4 --name Recipe --value R1 -p GXEnablement
       az pipelines run --branch master --name "20.1 Docker Build and Push - ACR" -p GXEnablement
     }
-    elif [[ "$Repo_Name" == "GitHub" ]]
+    elif [[ "$Def_ID" == "16" ]]
     then {
       az pipelines variable-group variable update --id 4 --name Recipe --value R2 -p GXEnablement
       az pipelines run --branch master --name "20.2 Docker Build and Push - DockerHub" -p GXEnablement
