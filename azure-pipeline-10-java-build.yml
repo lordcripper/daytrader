@@ -65,13 +65,14 @@ steps:
       az pipelines variable-group variable update --id 4 --name Recipe --value R2 -p GXEnablement
       az pipelines run --branch master --name "20.2 Docker Build and Push - DockerHub" -p GXEnablement
     }
-    elif [[ "$Repo_Name" == "aws" ]]
+    elif [[ "$Def_ID" == "25" ]]
     then {
       az pipelines variable-group variable update --id 4 --name Recipe --value R3 -p GXEnablement
-      az pipelines run --branch master --name "20.2 Docker Build and Push - DockerHub" -p GXEnablement
+      az pipelines run --branch master --name "20.3 Docker Build and Push - ECR" -p GXEnablement
     }
     fi
   env:
     AZURE_DEVOPS_CLI_PAT: $(System.AccessToken)
     Repo_Name: $(Build.Repository.Provider)
+    Def_ID: $(system.definitionId)
   displayName: 'Triggering next pipeline'
